@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>华夏深潜 - Deep Dive Chinese Culture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sea1: #8fd3f4;
+      --sea2: #3a9bd0;
+      --sea3: #1b5f96;
+      --sea4: #0e3560;
+      --card: #fff1cf;
+      --tx: #2b1a08;
+      --mut: #7a5a35;
+      --ac: #c8102e;
+      --gold: #d99a1b;
+      --bd: #2b1a08;
+      --inp: #fffaf0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--tx);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      background: linear-gradient(var(--sea1) 0 22%, var(--sea2) 22% 48%, var(--sea3) 48% 74%, var(--sea4) 74%) fixed var(--sea3);
+    }
+
+    #darkness-overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: #000;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 1s steps(6);
+    }
+
+    .deco {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .deco i {
+      position: absolute;
+      display: block;
+      image-rendering: pixelated;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      background-position: center;
+    }
+
+    .lan {
+      width: 54px;
+      height: 84px;
+      transform-origin: 50% 0;
+      animation: sway 3s steps(3) infinite alternate;
+      top: 0;
+    }
+    .l1 { left: 6px; }
+    .l2 { right: 6px; animation-delay: -1.5s; }
+
+    .cld {
+      width: 96px;
+      height: 36px;
+      opacity: 0.9;
+      left: -120px;
+      animation: drift 90s linear infinite;
+    }
+    .c1 { top: 70px; }
+    .c2 { top: 130px; width: 72px; height: 27px; animation-delay: -45s; }
+
+    .koi {
+      width: 64px;
+      height: 28px;
+      left: 100%;
+      animation: swim 50s steps(120) infinite;
+    }
+    .k1 { bottom: 12%; }
+    .k2 { bottom: 28%; animation-duration: 70s; animation-delay: -20s; }
+    .k3 { bottom: 45%; animation-duration: 90s; animation-delay: -55s; }
+
+    @keyframes sway {
+      from { transform: rotate(-5deg); }
+      to { transform: rotate(5deg); }
+    }
+    @keyframes drift {
+      to { left: calc(100% + 120px); }
+    }
+    @keyframes swim {
+      to { left: -100px; }
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    .mea {
+      height: 18px;
+      margin: 8px 0 12px;
+      background-color: var(--ac);
+      background-repeat: repeat-x;
+      background-size: auto 18px;
+      image-rendering: pixelated;
+      border: 3px solid var(--bd);
+    }
+
+    h1 {
+      margin: 6px 0 0;
+      text-align: center;
+      font-size: 36px;
+      color: var(--gold);
+      letter-spacing: 6px;
+      text-shadow: 3px 3px 0 var(--bd), -1px -1px 0 var(--bd), 1px -1px 0 var(--bd), -1px 1px 0 var(--bd);
+    }
+
+    .seal {
+      display: inline-block;
+      background: var(--ac);
+      color: #fff;
+      border: 3px solid var(--bd);
+      font-size: 16px;
+      letter-spacing: 0;
+      padding: 0 6px;
+      vertical-align: middle;
+      transform: rotate(-5deg);
+      text-shadow: none;
+    }
+
+    .sub {
+      text-align: center;
+      color: #fff;
+      text-shadow: 2px 2px 0 var(--bd);
+      margin: 0 0 4px;
+      font-weight: bold;
+    }
+
+    .card {
+      background: var(--card);
+      border: 4px solid var(--bd);
+      box-shadow: 5px 5px 0 var(--bd);
+      padding: 16px;
+      margin: 0 0 16px;
+    }
+
+    .px {
+      font-family: "Press Start 2P", monospace;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      color: #fff;
+      text-shadow: 2px 2px 0 var(--bd);
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .dep {
+      height: 14px;
+      border: 3px solid var(--bd);
+      background: var(--card);
+      margin-bottom: 12px;
+    }
+
+    .dep i {
+      display: block;
+      height: 100%;
+      background: repeating-linear-gradient(90deg, var(--ac) 0 8px, transparent 8px 10px);
+      transition: width .6s steps(8);
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      border: 3px solid var(--bd);
+      background: var(--gold);
+      color: #2b1a08;
+      padding: 0 8px;
+      margin-right: 4px;
+      font-weight: bold;
+    }
+
+    .pr {
+      font-size: 21px;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .tb {
+      height: 12px;
+      border: 3px solid var(--bd);
+      margin-bottom: 10px;
+      background: var(--inp);
+    }
+
+    .tb i {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 10px);
+      transition: width 0.1s linear;
+    }
+
+    .left {
+      text-align: right;
+      color: var(--mut);
+      font-size: 13px;
+      margin-top: 6px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      font: inherit;
+      font-size: 18px;
+      padding: 10px;
+      border: 4px solid var(--bd);
+      border-radius: 0;
+      background: var(--inp);
+      color: var(--tx);
+      margin-bottom: 12px;
+      outline: none;
+      font-weight: bold;
+    }
+
+    input:focus {
+      border-color: var(--ac);
+    }
+
+    input:disabled {
+      opacity: 0.7;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 4px solid var(--bd);
+      border-radius: 0;
+      padding: 10px 24px;
+      background: var(--ac);
+      color: #fff;
+      box-shadow: 0 5px 0 var(--bd);
+      font-weight: bold;
+      touch-action: manipulation;
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(5px);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .go {
+      width: 100%;
+    }
+
+    .alt {
+      background: var(--card);
+      color: var(--tx);
+    }
+
+    .beg {
+      background-color: #d99a1b;
+      border-color: #2b1a08;
+      color: #2b1a08;
+    }
+
+    .badge {
+      display: inline-block;
+      color: #fff;
+      border: 3px solid var(--bd);
+      padding: 0 12px;
+      font-weight: 700;
+      margin: 6px 0;
+      background: var(--c, #6b7a90);
+    }
+
+    .t0 { --c: #6b7a90; }
+    .t1 { --c: #3a9fd8; }
+    .t3 { --c: #2f5fd0; }
+    .t5 { --c: #8a2fb8; }
+    .t6 { --c: #c98a10; }
+
+    .hint {
+      color: var(--mut);
+      font-size: 14px;
+      margin: 6px 0 12px;
+    }
+
+    .big {
+      font-size: 26px;
+      color: var(--ac);
+      text-align: center;
+      margin: 12px 0;
+    }
+
+    .c {
+      text-align: center;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 14px;
+      padding: 4px 0;
+      border-top: 3px dotted var(--bd);
+    }
+
+    .row span:first-child {
+      color: var(--mut);
+      font-weight: bold;
+    }
+
+    h3 {
+      margin: 14px 0 6px;
+      font-size: 15px;
+    }
+
+    .dr {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      margin: 3px 0;
+      font-weight: bold;
+    }
+
+    .dl {
+      width: 56px;
+    }
+
+    .db {
+      flex: 1;
+      height: 14px;
+      border: 3px solid var(--bd);
+      background: var(--inp);
+    }
+
+    .db i {
+      display: block;
+      height: 100%;
+      background: var(--c, #6b7a90);
+    }
+
+    ruby {
+      ruby-align: center;
+    }
+
+    rt {
+      font-size: 0.6em;
+      color: var(--ac);
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="darkness-overlay"></div>
+
+  <div class="deco" aria-hidden="true">
+    <i class="cld c1"></i>
+    <i class="cld c2"></i>
+    <i class="koi k1"></i>
+    <i class="koi k2"></i>
+    <i class="koi k3"></i>
+    <i class="lan l1"></i>
+    <i class="lan l2"></i>
+  </div>
+
+  <main>
+    <div class="mea"></div>
+    <h1>华夏深潜 <span class="seal">潜</span></h1>
+    <p class="sub">潜入五千年，越冷门，潜得越深</p>
+
+    <div id="app"></div>
+
+    <div class="mea" style="margin-top: 24px;"></div>
+  </main>
+
+  <script>
+    // --- PIXEL ART SVG GENERATOR ---
+    function spr(map, pal) {
+      const h = map.length;
+      const w = map[0].length;
+      let r = "";
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const c = pal[map[y][x]];
+          if (c) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c}"/>`;
+        }
+      }
+      return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges">${r}</svg>`)}")`;
+    }
+
+    const vLan = spr(["....k....","....k....","..yyyyy..",".rrrrrrr.","rrorrrrdr","rrorrrrdr","rrorrrrdr","rrorrrrdr","rrorrrrdr",".rrrrrrr.","..yyyyy..","....y....","...y.y...","...y.y..."],{r:"#c8102e",d:"#8a0c20",o:"#ff5a3c",y:"#f2c14e",k:"#3b2a1a"});
+    const vKoi = spr(["....rr.......rr.","...rrrrr....rrrr","..rwwwwwrrrrrrr.",".rwwkwwwwwrrr...","..rwwwwwrrrrrrr.","...rrrrr....rrrr","....rr.......rr."],{r:"#ff5a2c",w:"#fff4e0",k:"#2b1a08"});
+    const vCld = spr(["....www.........","..wwwwwww..www..",".wwwwwwwwwwwwwww","wwwwwwwwwwwwwwww",".bbbbbbbbbbbbbb.","..bbbbbbbbbbbb.."],{w:"#ffffff",b:"#cfe8ff"});
+    const vMea = spr(["gggggggg","g.......","g.ggggg.","g.g...g.","g.g.g.g.","g.g.ggg.","g.g.....","gggggggg"],{g:"#f2c14e"});
+
+    // Apply pixel SVG backgrounds
+    document.querySelectorAll('.lan').forEach(el => el.style.backgroundImage = vLan);
+    document.querySelectorAll('.cld').forEach(el => el.style.backgroundImage = vCld);
+    document.querySelectorAll('.koi').forEach(el => el.style.backgroundImage = vKoi);
+    document.querySelectorAll('.mea').forEach(el => el.style.backgroundImage = vMea);
+
+    // --- AI-POWERED QUESTION BANKS ---
+    const DAILY_BANK_RAW = `
+网梗|说出一个近十年来在中文互联网上非常流行的网络流行语或梗
+游戏|说出一款由中国团队开发并广受欢迎的电子游戏（手游、端游、单机均可）
+小吃|说出一种具有浓厚中国地方特色的街头小吃或夜市美食
+影视|说出一部曾在中国引起广泛讨论的“现象级”国产电视剧或网剧
+乐队|说出一支在中国具有一定知名度的摇滚、民谣或独立乐队名称
+科幻|说出一部在中国具有广泛影响力的当代科幻或奇幻小说名称
+科技|说出一个在中国几乎家喻户晓的本土互联网APP或软件名称
+网红|说出一位在中文互联网上拥有极高知名度的内容创作者（如知名UP主、大V等）
+电影|说出一部票房极其火爆的中国国产电影（含合拍片）
+人物|说出一位在中国历史上多次被改编为影视、动漫或游戏形象的历史人物
+企业|说出一家全球知名的中国本土品牌或企业名称
+武侠|说出一个在中国武侠文化（小说、影视、游戏）中极其著名的武功招式名称
+神话|说出一个中国古代神话、民间传说或志怪小说中记载的妖魔鬼怪或神仙神兽
+交通|说出一个中国的高铁站名称（包含地名即可）
+地标|说出一个中国著名的现代城市地标建筑（如电视塔、摩天大楼等）
+体育|说出一位在国际赛场上获得过世界冠军的中国运动员名字
+朝代|说出中国历史上出现过的一个政权或朝代名称（含割据政权）
+文学|说出一位在近现代中国文坛具有重要影响力的作家名字
+综艺|说出一个曾在中国大陆引发收视热潮的现象级电视或网络综艺节目名称
+名山|说出中国境内的一座名山（不局限于五岳）
+曲艺|说出一种中国传统曲艺或地方戏曲的剧种名称
+非遗|说出一种中国国家级非物质文化遗产（如传统手工艺、民俗节庆等）
+零食|说出一种伴随中国80后、90后或00后成长的经典国民零食品牌
+节日|说出一个中国传统的节日或在民间广泛庆祝的节气
+服饰|说出一种中国历史上或各民族特有的传统服饰名称
+网文|说出一部在中文网络文学发展史上具有里程碑意义的网络小说名称
+动漫|说出一部在中国具有极高国民度的国产动画片或动画电影
+商业|说出一个中国著名的商业步行街或知名商圈名称
+文物|说出中国各大博物馆中收藏的一件著名国宝级文物名称
+外号|说出一个中国网民给某位国内或国际体坛、电竞圈名人起的著名中文绰号
+`;
+
+    const UNLIMITED_BANK_RAW = `
+战役|说出一个中国历史上发生过的著名古代或近代战役
+帝王|说出一位中国历史上的皇帝（需说出庙号、谥号或姓名）
+起义|说出中国古代或近代的一次著名农民起义或运动
+城市|说出一个中国大陆的地级市或县级市名称
+河流|说出中国境内的一条河流名称（不局限于大江大河）
+湖泊|说出一个位于中国境内的自然湖泊名称
+地理|说出中国境内的一个盆地、高原、平原或沙漠名称
+诗词|说出一位在历史上留下了传世名篇的中国古代诗人或词人
+唐诗|说出一首你在学生时代背诵过的唐诗宋词题目
+红楼|说出《红楼梦》中出现过的一个人物名字（无论大小角色）
+三国|说出《三国演义》或三国历史中出现过的一个人物名字
+水浒|说出《水浒传》中出场过的一个角色名字（不局限于108将）
+成语动物|说出一个含有真实或神话动物名称的四字成语
+成语数字|说出一个含有数字的四字成语
+名言|说出一句源自《论语》、《庄子》等先秦诸子百家典籍的著名短语或成语
+华语男歌手|说出一位在华语乐坛具有较高知名度的男歌手名字
+华语女歌手|说出一位在华语乐坛具有较高知名度的女歌手名字
+导演|说出一位在中国电影史上具有一定地位或票房号召力的华人导演名字
+金曲|说出一首在KTV中被广泛点唱的经典华语流行歌曲名称
+春晚|说出一位曾经在央视春晚舞台上表演过语言类节目（小品、相声）的演员名字
+大奖|说出一部获得过金马奖、金像奖或金鸡奖最佳故事片的华语电影名称
+港片|说出一部经典的香港警匪、武侠或喜剧电影名称
+国漫|说出一部在近十年内上映并获得极高口碑的国产动画剧集或电影
+流行语|说出一个近年来在中国年轻人中广泛使用的网络流行语
+主题乐园|说出一个位于中国境内的大型游乐园或主题公园名称
+特产|说出一种原产于中国或作为中国某地特产的著名水果或农产品
+大学|说出一所中国著名的大学（如985/211高校）名称
+交通工具|说出一种中国历史上或现代广泛使用的特色交通工具（含俗称）
+名茶|说出一种中国著名的传统茶叶品种或名称
+名酒|说出一种中国特有的传统白酒或黄酒品牌
+名菜|说出一种在中国极其普及的家常菜或餐馆常见菜名称
+调料|说出一种常用于中式烹饪的调味料或香料名称
+古镇|说出一个位于江南地区或其他省份的著名历史文化古镇名称
+花卉|说出一种在中国古典诗词和国画中经常被赞颂的植物或花卉
+兵器|说出中国古代冷兵器的一种具体名称或传奇兵器的名字
+神话人物|说出《封神演义》或《西游记》中的一个出场人物名称
+道教佛教|说出中国著名的道教名山或佛教名山中的一座
+方言|说出一个中国特色方言片区或具体的地方方言名称
+中药|说出一种在中国传统医学中常用的中药材名称
+历史书籍|说出一部中国古代著名的史书或史学典籍名称
+传统建筑|说出中国传统建筑中的一种典型结构、构件或样式名称
+商业品牌|说出一个在海外市场也具有一定影响力的中国本土品牌
+游戏角色|说出一个在中国现象级游戏（如王者荣耀、原神、黑神话等）中的著名角色名字
+纪录片|说出一部在中国反响强烈的国产纪录片（如美食、历史人文类）
+选秀|说出一个曾在中国引起轰动的音乐或偶像选秀节目名称
+电竞|说出一支在中国具有广泛粉丝基础的电子竞技职业战队名称
+航天|说出中国航天工程中的一个著名航天器、卫星或探测器名称
+桥梁|说出一座中国历史上著名或现代建成的世界级超级大桥名称
+高铁|说出中国一条正在运营的高铁或动车线路名称（如京沪高铁）
+手机|说出一个中国本土的智能手机品牌或系列名称
+汽车|说出一个中国本土的汽车品牌（含新能源汽车）名称
+配音|说出一位中国知名的配音演员（CV）名字
+舞台剧|说出一部中国著名的话剧或舞剧名称
+快餐|说出一个在中国大街小巷常见的本土连锁餐饮或奶茶品牌名称
+外卖|说出一种中国年轻人经常点的外卖食品品类
+短视频|说出一种在抖音、快手等短视频平台上非常流行的视频类型或挑战名称
+网红城市|说出一个近年来因为网络传播而爆火的“网红”旅游城市
+自然保护区|说出一个中国国家级自然保护区或国家公园的名称
+神兽|说出中国古代神话或祥瑞文化中的一种瑞兽或凶兽
+国风音乐|说出一首在网络上极具人气的国风/古风流行歌曲名称
+网络平台|说出一个中国网民常用的小众或垂类互联网社区/论坛名称
+`;
+
+    const BEGINNER_RAW = `
+城市|说(shuō)出(chū)一(yí)个(gè)中(zhōng)国(guó)的(de)一(yī)线(xiàn)或(huò)二(èr)线(xiàn)城(chéng)市(shì) (Name a Tier 1 or Tier 2 Chinese city)
+美食|说(shuō)出(chū)一(yì)道(dào)中(zhōng)国(guó)餐(cān)馆(guǎn)常(cháng)见(jiàn)的(de)菜(cài)肴(yáo) (Name a common dish in Chinese restaurants)
+软件|说(shuō)出(chū)一(yí)个(gè)中(zhōng)国(guó)流(liú)行(xíng)的(de)手(shǒu)机(jī)应(yìng)用(yòng) (Name a popular Chinese mobile app)
+朝代|说(shuō)出(chū)一(yí)个(gè)中(zhōng)国(guó)历(lì)史(shǐ)上(shàng)的(de)朝(cháo)代(dài) (Name a Chinese historical dynasty)
+神话|说(shuō)出(chū)《西(xī)游(yóu)记(jì)》中(zhōng)的(de)一(yí)个(gè)角(jiǎo)色(sè) (Name a character from Journey to the West)
+茶饮|说(shuō)出(chū)一(yì)种(zhǒng)中(zhōng)国(guó)茶(chá)类(lèi)或(huò)奶(nǎi)茶(chá)品(pǐn)牌(pái) (Name a Chinese tea type or boba brand)
+节日|说(shuō)出(chū)一(yí)个(gè)中(zhōng)国(guó)的(de)传(chuán)统(tǒng)节(jié)日(rì) (Name a traditional Chinese festival)
+地理|说(shuō)出(chū)中(zhōng)国(guó)的(de)一(yí)个(gè)省(shěng)份(fèn)或(huò)自(zì)治(zhì)区(qū) (Name a Chinese province or autonomous region)
+品牌|说(shuō)出(chū)一(yí)个(gè)著(zhù)名(míng)的(de)中(zhōng)国(guó)本(běn)土(tǔ)品(pǐn)牌(pái) (Name a famous Chinese domestic brand)
+诗人|说(shuō)出(chū)一(yí)位(wèi)中(zhōng)国(guó)古(gǔ)代(dài)的(de)著(zhù)名(míng)诗(shī)人(rén) (Name a famous ancient Chinese poet)
+`;
+
+    function parseAIDB(dataString) {
+      return dataString.trim().split('\n').filter(line => line.trim()).map((line, idx) => {
+        const [cat, q] = line.split('|');
+        return { id: `ai_${idx}`, category: cat.trim(), q: q.trim() };
+      });
+    }
+
+    function parseBeginner(dataString) {
+      return dataString.trim().split('\n').filter(line => line.trim()).map((line, idx) => {
+        const [cat, qAndPinyin] = line.split('|');
+        const qParts = qAndPinyin.split(' (');
+        const qRawPinyin = qParts[0];
+        const english = qParts[1] ? `(${qParts[1]}` : '';
+        const cleanQ = qRawPinyin.replace(/\([a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]+\)/g, '');
+        const qHtml = qRawPinyin.replace(/(.)\(([a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]+)\)/g, '<ruby>$1<rt>$2</rt></ruby>');
+        return { id: `b_${idx}`, category: cat.trim(), q: qHtml, rawQ: cleanQ, english };
+      });
+    }
+
+    const DAILY_BANK = parseAIDB(DAILY_BANK_RAW);
+    const UNLIMITED_BANK = parseAIDB(UNLIMITED_BANK_RAW);
+    const BEGINNER_BANK = parseBeginner(BEGINNER_RAW);
+    const TIERS = ["未收录", "浅滩", "珊瑚礁", "深海", "暗流", "海沟", "磷虾级"];
+
+    function shuffle(array) {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex > 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    function getUniqueCategoryQuestions(bank, count, seed = null) {
+      let shuffled = [...bank];
+      if (seed !== null) {
+        let t = seed;
+        const random = () => {
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+      } else {
+        shuffled = shuffle(shuffled);
+      }
+
+      const selected = [];
+      const usedCategories = new Set();
+
+      for (const q of shuffled) {
+        if (!usedCategories.has(q.category)) {
+          selected.push(q);
+          usedCategories.add(q.category);
+          if (selected.length === count) break;
+        }
+      }
+
+      if (selected.length < count) {
+        for (const q of shuffled) {
+          if (!selected.includes(q)) {
+            selected.push(q);
+            if (selected.length === count) break;
+          }
+        }
+      }
+
+      return selected;
+    }
+
+    // --- GAME STATE ---
+    const state = {
+      gameState: 'menu', // 'menu' | 'playing' | 'results'
+      mode: '',
+      questions: [],
+      currentQIndex: 0,
+      timeLeft: 0,
+      totalTime: 25,
+      scoreMeters: 0,
+      history: [],
+      tried: [],
+      isChecking: false,
+      isOver: false,
+      flash: null,
+      errorMsg: '',
+      timerInterval: null
+    };
+
+    const appEl = document.getElementById('app');
+    const darknessEl = document.getElementById('darkness-overlay');
+
+    function updateDarkness() {
+      darknessEl.style.opacity = state.gameState === 'playing' ? (state.scoreMeters / 700) * 0.6 : 0.1;
+    }
+
+    function startTimer() {
+      stopTimer();
+      state.timerInterval = setInterval(() => {
+        if (state.gameState !== 'playing' || state.isOver || state.isChecking) return;
+        state.timeLeft -= 0.1;
+        if (state.timeLeft <= 0) {
+          state.timeLeft = 0;
+          handleTimeOut();
+        } else {
+          const tbFill = document.getElementById('tb-fill');
+          const tlText = document.getElementById('tl');
+          if (tbFill) tbFill.style.width = `${(state.timeLeft / state.totalTime) * 100}%`;
+          if (tlText) tlText.textContent = `${Math.ceil(state.timeLeft)} 秒`;
+        }
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+    }
+
+    function startGame(selectedMode) {
+      let selectedQs = [];
+      if (selectedMode === 'daily') {
+        const d = new Date();
+        const seed = d.getFullYear() * 1000 + Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        selectedQs = getUniqueCategoryQuestions(DAILY_BANK, 7, seed);
+      } else if (selectedMode === 'unlimited') {
+        selectedQs = getUniqueCategoryQuestions(UNLIMITED_BANK, 7, null);
+      } else if (selectedMode === 'beginner') {
+        selectedQs = getUniqueCategoryQuestions(BEGINNER_BANK, 7, null);
+      }
+
+      state.mode = selectedMode;
+      state.questions = selectedQs;
+      state.currentQIndex = 0;
+      state.scoreMeters = 0;
+      state.history = [];
+      state.tried = [];
+      state.totalTime = selectedMode === 'beginner' ? 45 : 25;
+      state.timeLeft = state.totalTime;
+      state.gameState = 'playing';
+      state.errorMsg = '';
+      state.isChecking = false;
+      state.isOver = false;
+      state.flash = null;
+
+      render();
+      startTimer();
+    }
+
+    function handleTimeOut() {
+      stopTimer();
+      state.isOver = true;
+      const currentQ = state.questions[state.currentQIndex];
+      state.history.push({
+        q: currentQ.q,
+        a: '',
+        depth: 0,
+        level: 0,
+        rarity: '未收录'
+      });
+      state.flash = { msg: "时间到，没有在规定时间内答出。", type: 0 };
+      render();
+    }
+
+    // Calls our serverless backend proxy (/api/judge) so users never see or enter an API key
+    async function checkAnswerWithProxy(question, guess, gameMode) {
+      state.isChecking = true;
+      render();
+
+      try {
+        const response = await fetch('/api/judge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            guess,
+            mode: gameMode
+          })
+        });
+
+        if (!response.ok) {
+          let errDetail = `HTTP ${response.status}`;
+          try {
+            const errJson = await response.json();
+            if (errJson && errJson.reason) errDetail = errJson.reason;
+          } catch (_) {}
+          throw new Error(errDetail);
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (err) {
+        console.error('Proxy request failed:', err);
+        return {
+          valid: false,
+          error: true,
+          reason: err.message && err.message !== 'Failed to fetch'
+            ? err.message
+            : "无法连接到 /api/judge（请确保已部署到 Vercel 且配置了 GROQ_API_KEY）"
+        };
+      } finally {
+        state.isChecking = false;
+      }
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      if (state.isOver || state.isChecking) return;
+
+      const inputEl = document.getElementById('in');
+      const guess = inputEl ? inputEl.value.trim() : '';
+      if (!guess) return;
+
+      const currentQ = state.questions[state.currentQIndex];
+      const questionTextForAI = currentQ.rawQ || currentQ.q;
+      const aiResult = await checkAnswerWithProxy(questionTextForAI, guess, state.mode);
+
+      if (aiResult.error) {
+        state.errorMsg = `⚠️ ${aiResult.reason}`;
+      } else if (aiResult.valid) {
+        stopTimer();
+        state.isOver = true;
+
+        const depthMap = { 1: 10, 3: 25, 5: 50, 6: 100 };
+        const depth = depthMap[aiResult.rarity] || 10;
+        const level = aiResult.rarity === 1 ? 1 : aiResult.rarity === 3 ? 3 : aiResult.rarity === 5 ? 5 : 6;
+
+        state.scoreMeters += depth;
+        state.history.push({
+          q: currentQ.q,
+          a: aiResult.primaryName || guess,
+          depth: depth,
+          level: level,
+          rarity: TIERS[level]
+        });
+
+        let hintMsg = level === 6 ? "太强了！已经是这道题最深的一档了！" : "还可以想出更冷门的答案！";
+        if (aiResult.reason) hintMsg += `（AI简评：${aiResult.reason}）`;
+        state.flash = { msg: hintMsg, type: level, points: depth * 10 };
+      } else {
+        if (!state.tried.includes(guess)) {
+          state.tried.push(guess);
+        }
+        state.errorMsg = `✖ 判定无效！${aiResult.reason || '这不是一个可接受的答案。'} 已试：${state.tried.join("、")}`;
+      }
+
+      render();
+    }
+
+    function nextQuestion() {
+      if (state.currentQIndex < 6) {
+        state.currentQIndex += 1;
+        state.totalTime = state.mode === 'beginner' ? 45 : 25;
+        state.timeLeft = state.totalTime;
+        state.tried = [];
+        state.errorMsg = '';
+        state.isChecking = false;
+        state.isOver = false;
+        state.flash = null;
+        render();
+        startTimer();
+      } else {
+        stopTimer();
+        state.gameState = 'results';
+        render();
+      }
+    }
+
+    function goToMenu() {
+      stopTimer();
+      state.gameState = 'menu';
+      render();
+    }
+
+    // --- RENDERERS ---
+    function renderMenu() {
+      return `
+        <div class="card c">
+          <p class="pr">越冷门的答案，潜得越深</p>
+          <p class="hint">每局 7 道题，答错不扣分，限时内可以一直换答案重试。由云端 AI 裁判实时鉴定冷门程度，无需配置任何密钥，越冷门的答案潜得越深，每题最高潜入 1000 米。</p>
+          
+          <button class="go" onclick="startGame('daily')">📅 每日挑战</button>
+          <p class="hint">按天轮换，所有人同一套（北京时间0点更新）。</p>
+          
+          <button class="go alt" onclick="startGame('unlimited')">♾️ 无限模式</button>
+          <p class="hint">独立开放题库，每次随机抽取新的 7 题。</p>
+
+          <button class="go beg" onclick="startGame('beginner')">🔋 新手模式</button>
+          <p class="hint">适合汉语学习者的文化题库，45秒倒计时，自带拼音提示，AI 裁判超宽容判定。</p>
+        </div>
+      `;
+    }
+
+    function renderPlaying() {
+      const q = state.questions[state.currentQIndex];
+      const modeLabel = state.mode === 'daily' ? '每日挑战' : state.mode === 'beginner' ? '新手模式' : '无限模式';
+      const lastAnswer = state.history[state.history.length - 1];
+
+      return `
+        <div class="bar">
+          <span class="px" style="font-size: 11px;">${state.scoreMeters * 10} M</span>
+          <span>${modeLabel}</span>
+          <span class="px" style="font-size: 11px;">7000 M</span>
+        </div>
+
+        <div class="dep">
+          <i style="width: ${(state.scoreMeters / 700) * 100}%;"></i>
+        </div>
+
+        <div class="card">
+          <span class="tag">第 ${state.currentQIndex + 1} / 7 题</span>
+          <p class="pr">
+            ${q.q}
+            ${state.mode === 'beginner' && q.english ? `<span class="hint" style="display:block; margin-top:5px;">${q.english}</span>` : ''}
+          </p>
+
+          ${!state.isOver ? `
+            <div class="tb"><i id="tb-fill" style="width: ${(state.timeLeft / state.totalTime) * 100}%;"></i></div>
+            <form onsubmit="handleFormSubmit(event)">
+              <input
+                id="in"
+                autocomplete="off"
+                placeholder="输入你的答案…"
+                maxlength="30"
+                ${state.isChecking ? 'disabled' : ''}
+              />
+              <button type="submit" class="go" ${state.isChecking ? 'disabled' : ''}>
+                ${state.isChecking ? 'AI 裁判鉴定中...' : '提交'}
+              </button>
+            </form>
+            <div class="hint" id="msg">${state.errorMsg || "答错不扣分，限时内可以一直重试，越冷门越好。"}</div>
+            <div class="left" id="tl">${Math.ceil(state.timeLeft)} 秒</div>
+          ` : `
+            <div>你的答案：<b>${lastAnswer?.a || '（未作答）'}</b></div>
+            ${state.flash?.type > 0 ? `<div class="badge t${state.flash.type}">${TIERS[state.flash.type]} · +${state.flash.points} 米</div>` : ''}
+            <div class="hint">${state.flash?.msg || ''}</div>
+            <button class="go" onclick="nextQuestion()">${state.currentQIndex === 6 ? "查看结果" : "下一题"}</button>
+          `}
+        </div>
+      `;
+    }
+
+    function renderResults() {
+      const totalMeters = state.scoreMeters * 10;
+      const title = totalMeters >= 6000 ? "磷虾之王 👑" : totalMeters >= 4500 ? "海沟猎手" : totalMeters >= 3000 ? "深海探险家" : totalMeters >= 1500 ? "熟练潜水员" : "浅滩游客";
+      const modeLabel = state.mode === 'daily' ? '每日挑战' : state.mode === 'beginner' ? '新手模式' : '无限模式';
+
+      const counts = [0, 0, 0, 0, 0, 0, 0];
+      state.history.forEach(h => { counts[h.level]++; });
+
+      const rowsHtml = state.history.map(h => {
+        const cleanTitle = h.q.replace(/<rt>.*?<\/rt>/g, '').replace(/<[^>]*>?/gm, '');
+        return `
+          <div class="row">
+            <span>${cleanTitle}</span>
+            <span><b>${h.a || '（未作答）'}</b> · ${TIERS[h.level]}</span>
+          </div>
+        `;
+      }).join('');
+
+      const distHtml = [6, 5, 3, 1, 0].map(lvl => `
+        <div class="dr">
+          <span class="dl">${TIERS[lvl]}</span>
+          <span class="db"><i class="t${lvl}" style="width: ${(counts[lvl] / 7) * 100}%;"></i></span>
+          <b>${counts[lvl]}</b>
+        </div>
+      `).join('');
+
+      return `
+        <div class="card">
+          <div class="c hint">${modeLabel}</div>
+          <div class="big px">${totalMeters} M</div>
+          <div class="c pr">${title}</div>
+
+          ${rowsHtml}
+
+          <h3>本局答案稀有度分布</h3>
+          ${distHtml}
+
+          <p></p>
+          ${state.mode !== 'unlimited' ? `<button class="go alt" style="margin-bottom:10px;" onclick="startGame('unlimited')">♾️ 去无限模式</button>` : ''}
+          <button class="go" style="margin-bottom:10px;" onclick="goToMenu()">返回首页</button>
+        </div>
+      `;
+    }
+
+    function render() {
+      updateDarkness();
+      if (state.gameState === 'menu') {
+        appEl.innerHTML = renderMenu();
+      } else if (state.gameState === 'playing') {
+        appEl.innerHTML = renderPlaying();
+        if (!state.isOver && !state.isChecking) {
+          const inputEl = document.getElementById('in');
+          if (inputEl) inputEl.focus();
+        }
+      } else if (state.gameState === 'results') {
+        appEl.innerHTML = renderResults();
+      }
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
